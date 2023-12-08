@@ -1,0 +1,67 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container" style="display: flex; justify-content: space-between;">
+    <div class="cell" style="flex: 1; width: 50%;">
+        <p class="title">{{ user.username }}'s Profile</p>
+        {% include 'review/user_review_browser.html' %}
+    </div>
+    <div class="cell" style="flex: 1; width: 50%;">
+        <h2 class="review-heading">Your Wishlist:</h2>
+        <div class="wishlist">
+        {% if wishlist is not none and wishlist.list_of_games() != [] %}
+            {% for game in wishlist %}
+            <a href="{{ url_for('browse.browse_detail') }}?id={{ game.game_id }}">
+                <div class="layout-wishlist-table-row wishlist-item">
+                    <img src="{{ game.image_url }}" alt="{{ game.title }}" class="layout-wishlist-game-image">
+                    <p class="layout-wishlist-game-title">{{ game.title }}</p>
+                    <form id="wishlist-form-{{ game.game_id }}" action="{{ url_for('wishlist.remove_wishlist', game_id=game.game_id) }}" method="POST" data-game-id="{{ game.game_id }}">
+                        <input type="hidden" name="game_id" value="{{ game.game_id }}">
+                        <button id="wishlist-btn-{{ game.game_id }}" class="wishlist-button remove-button" type="submit">Remove from Wishlist</button>
+                    </form>
+                </div>
+            </a>
+            {% endfor %}
+        {% else %}
+            <h2 class="review-heading">YOUR WISHLIST IS EMPTY!</h2>
+        {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('[id^=wishlist-form-]').on('submit', function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var button = form.find('button');
+        var game_id = form.data('game-id');  // Get the game ID from the data attribute
+
+        $.ajax({
+            url: form.attr('action'),
+            type: form.attr('method'),
+            data: form.serialize(),
+        }).done(function(data) {
+            // This is the success function
+            // Update the button's state based on the response
+            if (data.result == 'success') {
+                if (form.attr('action').endsWith('remove/' + game_id)) {
+                    form.attr('action', "/wishlist/add_to_wishlist");
+                    button.text('Add to Wishlist');
+                    button.removeClass('remove-button');
+                    button.addClass('add-button');
+                } else {
+                    form.attr('action', "/wishlist/remove/" + game_id);
+                    button.text('Remove from Wishlist');
+                    button.removeClass('add-button');
+                    button.addClass('remove-button');
+                    // Remove the item from the page
+                    var item = form.closest('.wishlist-item');
+                    item.remove();
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

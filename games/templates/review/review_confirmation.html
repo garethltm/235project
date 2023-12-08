@@ -1,0 +1,17 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="confirmation-box">
+    <h1>{{ review_h1 }}</h1>
+    <h2>{{ review_h2 }}</h2>
+    <p>{{ review_h3 }}</p>
+    {% if game_id != -1 %}
+    <a href="{{ url_for('browse.browse_detail', id=game_id) }}">
+        <button type="button">OK</button>
+    </a>
+    {% else %}
+    <a href="{{ url_for('browse.browse_home') }}">
+            <button type="button">OK</button>
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,189 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const dropdownOptions = document.querySelectorAll(".dropdown-option");
+        const searchbar = document.getElementById("searchInput");
+        const params = new URLSearchParams(window.location.search);
+        searchbar.value = params.get('searchterm') || "";
+
+        dropdownOptions.forEach(option => {
+            option.addEventListener("click", function() {
+                const selectedOptionText = this.textContent;
+                const dropdownButton = document.getElementById("dropdown");
+                dropdownButton.textContent = selectedOptionText;
+
+                {#const url = new URL(window.location.href);#}
+                {#const params = new URLSearchParams(url.search);#}
+                {#params.set('search', selectedOptionText);#}
+                {#params.delete('page');#}
+                {#if (selectedOptionText === "Title") {#}
+                {#    params.set('title', document.getElementById("searchInput").value);#}
+                {#    params.delete('publisher');#}
+                {# } else if (selectedOptionText === "Genre") {#}
+                {#    params.set('genre', document.getElementById("searchInput").value);#}
+                {#    params.delete('title');#}
+                {# } else if (selectedOptionText === "Publisher") {#}
+                {#    params.set('publisher', document.getElementById("searchInput").value);#}
+                {#    params.delete('title');#}
+                {# } else {#}
+                {#    params.delete('title');#}
+                {#    params.delete('publisher');#}
+                {# }#}
+                {#window.location.search = params.toString();#}
+            });
+    
+        });
+
+        let genres = [{% for genre in genres %}"{{ genre.genre_name }}",{% endfor %}];
+        let titles = [{% for game in title_suggestions %}"{{ game.title }}",{% endfor %}];
+        let publishers = [{% for publisher in publisher_suggestions %}"{{ publisher.publisher_name }}",{% endfor %}];
+
+        let parser = new DOMParser();
+
+        genres = genres.map(genre => {
+            let doc = parser.parseFromString(genre, "text/html");
+            return doc.documentElement.textContent;
+        });
+
+        titles = titles.map(title => {
+            let doc = parser.parseFromString(title, "text/html");
+            return doc.documentElement.textContent;
+        });
+
+        publishers = publishers.map(publisher => {
+            let doc = parser.parseFromString(publisher, "text/html");
+            return doc.documentElement.textContent;
+        });
+
+        {#console.log(genres)#}
+        {#console.log(titles)#}
+        {#console.log(publishers)#}
+
+        $("#searchInput").autocomplete({
+            source: function(request, response) {
+                let searchCategory = document.getElementById("dropdown").textContent.trim();
+                {#console.log(searchCategory);#}
+                
+                if (searchCategory === "Title") {
+                    let filteredTitles = titles.filter(title => title.toLowerCase().includes(request.term.toLowerCase()));
+                    response(filteredTitles);
+                    {#console.log(filteredTitles)#}
+                } else if (searchCategory === "Genre") {
+                    let terms = request.term.split(";");
+                    let lastTerm = terms.pop().trim();
+                    let filteredGenres = genres.filter(genre => genre.toLowerCase().includes(lastTerm.toLowerCase()));
+                    response(filteredGenres);
+                    {#console.log(filteredGenres)#}
+                } else {
+                    let filteredPublishers = publishers.filter(publisher => publisher.toLowerCase().includes(request.term.toLowerCase()));
+                    response(filteredPublishers);
+                    {#console.log(filteredPublishers)#}
+                }
+            },
+            focus: function() {
+                return false;
+            },
+            select: function(event, ui) {
+                let searchCategory = document.getElementById("dropdown").textContent.trim();
+                if (searchCategory === "Genre") {
+                    let currentValue = this.value;
+                    let lastSemicolonIndex = currentValue.lastIndexOf(";");
+                    this.value = currentValue.substr(0, lastSemicolonIndex + 1) + ui.item.value + ";";
+                } else {
+                    this.value = ui.item.value;
+                }
+                return false;
+            }
+        });
+
+
+
+        const searchButton = document.getElementById("searchbutton");
+
+        searchButton.addEventListener("click", function() {
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+            {#const selectedOption = params.get('search');#}
+            const selectedOption = document.getElementById("dropdown").textContent.trim() || document.getElementById("dropdown").textContent;
+            {#console.log(selectedOption)#}
+            params.set('search', selectedOption);
+            params.set('searchterm', document.getElementById("searchInput").value);
+            params.delete('page');
+
+                {#if (selectedOption === "Title") {#}
+                {#    params.set('title', document.getElementById("searchInput").value);#}
+                {#    params.delete('publisher');#}
+                {# } else if (selectedOption === "Genre") {#}
+                {#    params.set('genre', document.getElementById("searchInput").value);#}
+                {#    params.delete('title');#}
+                {# } else if (selectedOption === "Publisher") {#}
+                {#    params.set('publisher', document.getElementById("searchInput").value);#}
+                {#    params.delete('title');#}
+                {# } else {#}
+                {#    params.delete('title');#}
+                {#    params.delete('publisher');#}
+                {# }#}
+                {#window.location.search = params.toString();#}
+
+                const newQuery = params.toString();
+
+                const currentUrl = window.location.host + '/browse';
+                {#console.log(currentUrl);#}
+                {#console.log(window.location.host);#}
+                const newUrl = newQuery ? '/browse'+ '?' + newQuery : currentUrl;
+
+                {#console.log("newUrl: " + newUrl);#}
+                window.location.href = newUrl;
+                {#window.location.href =  newUrl;#}
+            {#fetch(newUrl)#}
+        });
+    });
+
+</script>
+
+
+<div class="search-bar">
+    <input type="text" class="search-input" id="searchInput" {% if title_search != "" and search == "Title" %}
+                                                                value="{{ title_search }}"
+                                                            {% elif gen_search != "" and search == "Genre" %}
+                                                                value="{{ gen_search }}"
+                                                            {% elif pub_search != "" and search == "Publisher" %}
+                                                                value="{{ pub_search }}"
+                                                            {% else %}
+                                                                placeholder="Search..."
+                                                            {% endif %} >
+
+
+
+    <div class="right-aligned-elements">
+        <div class="dropdown">
+            <button class="dropdown-button" id="dropdown">
+                {% if search == "Title" %}
+                    Title
+                {% elif search == "Publisher" %}
+                    Publisher
+                {% else %}
+                    Genre
+                {% endif %}
+            </button>
+            <img class="dropdown-button-icon" src="../../static/images/angle-down-solid.svg" alt="Dropdown">
+            <div class="dropdown-content">
+                <a  class="dropdown-option">Title</a>
+                <a  class="dropdown-option">Genre</a>
+                <a  class="dropdown-option">Publisher</a>
+{#                <a href="{{ url_for('browse.browse_title')}}" class="dropdown-option">Title</a>#}
+{#                <a href="{{ url_for('browse.browse_genre')}}" class="dropdown-option">Genre</a>#}
+{#                <a href="{{ url_for('browse.browse_publisher')}}" class="dropdown-option">Publisher</a>#}
+            </div>
+        </div>
+
+
+        <button id="searchbutton">
+            <img class="search-button" src="../../static/images/search.png" alt="Search">
+{#          <a href="https://www.flaticon.com/free-icons/search" title="search icons">Search icons created by Smashicons - Flaticon</a>#}
+        </button>
+    </div>
+</div>

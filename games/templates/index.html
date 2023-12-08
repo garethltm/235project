@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ title }}</title>
+        <link rel="icon" type="image/png" href="../static/images/logo.png">
+        <link rel="stylesheet" href="../static/css/styles.css">
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lalezar&family=Montserrat:wght@400;500;700&family=Solitreo&family=Titan+One&display=swap" rel="stylesheet">
+    </head>
+    <body>
+
+        {%  include 'assets/navbar.html' %}
+
+        <div class="main-content">
+
+            {% block content %}
+
+            {% endblock %}
+
+        </div>
+
+        {%  include 'assets/footer.html' %}
+
+    </body>
+</html>

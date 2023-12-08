@@ -1,0 +1,44 @@
+<h2 class="review-heading">Your Reviews:</h2>
+{% if user_reviews != [] %}
+    <table>
+        <tr>
+            <th>Game</th>
+            <th>Comment</th>
+            <th>Rating</th>
+        </tr>
+
+        {% for review in user_reviews %}
+        <tr>
+            <td><a href="{{ url_for('browse.browse_detail', id=review.game.game_id) }}">{{ review.game.title }}</a></td>
+            <td>{{ review.comment }}</td>
+            <td>
+                {% for i in range(review.rating) %}
+                    <span class="star">★</span>
+                {% endfor %}
+                ({{ review.rating }})
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="pagination">
+        <a href="{{ first_page }}" class="pagination-link">First</a>
+
+        {% if prev_page != None %}
+        <a href="{{ prev_page }}" class="pagination-link">Previous</a>
+        {% else %}
+        <a class="pagination-disabled">Previous</a>
+        {% endif %}
+
+        <span class="pagination-info">Page <span class=current-page">{{ page }}</span> of {{ total_page }}</span>
+
+        {% if next_page != None %}
+        <a href="{{ next_page }}" class="pagination-link" id="next">Next</a>
+        {% else %}
+        <a class="pagination-disabled" id="next">Next</a>
+        {% endif %}
+
+        <a href="{{ last_page }}" class="pagination-link" id="last">Last</a>
+    </div>
+{% else %}
+    <h2 class="review-heading">NO REVIEWS FOUND!</h2>
+{% endif %}

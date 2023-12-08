@@ -1,0 +1,30 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="home-content">
+
+    <div class="search-container">
+        {% include 'assets/search_bar.html' %}
+    </div>
+    <p>
+        This is a game library website created for the 2023 S2 version of Computer Science 235 paper at the University of Auckland in New Zealand. <br>
+        This website is work in progress by 3 students, Minsu Kim, Aaron Chiam, and Gareth Lee. <br>
+        Currently, this website allows users to browse, view game details and search by the game name, genre and publisher. <br>
+        At the moment, this website reflects the requirements of CS235 Assignment Phase 2. <br>
+        Game data has been provided by our lecturer from Steam, in the form of a CSV file. <br>
+    </p>
+
+</div>
+
+<div class="layout-fg-table">
+    <h2 class="layout-fg-table-heading">Featured Games</h2>
+    {% for game in featuredGames %}
+    <a href="{{ url_for('browse.browse_detail')  }}?id={{ game.game_id }}">
+        <div class="layout-fg-table-row">
+            <img src="{{ game.image_url }}" alt="{{ game.title }}" class="layout-fg-game-image">
+            <p class="layout-fg-game-title">{{ game.title }}</p>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'index.html' %}
+{% block content %}
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", function() {
+                    const formData = new FormData(document.getElementById("genre_checkbox"));
+                    {# console.log(checkbox.value); #}
+                    const checkedCheckboxes = Array.from(checkboxes).filter(c => c.checked);
+                    const genreValues = checkedCheckboxes.map(c => c.value);
+                    params.set('genres', genreValues.join(','));
+                    const newQuery = params.toString();
+
+                    const currentUrl = window.location.host + '/browse';
+                    const newUrl = newQuery ? '/browse'+ '?' + newQuery : currentUrl;
+
+                    {#console.log("newUrl: " + newUrl);#}
+                    window.location.href = newUrl;
+                    {#const newQuery = queryParams.toString();#}
+                    {#console.log(newQuery);#}
+                    {##}
+                    {#const currentUrl = window.location.href.split('?')[0];#}
+                    {#const newUrl = newQuery ? currentUrl + '?' + newQuery : currentUrl;#}
+                    {#console.log(newUrl);#}
+                    {#window.location.href =  newUrl;#}
+                });
+            });
+         });
+    </script>
+
+        <div class="sidebar">
+            <form action="{{ url_for('browse.browse_home') }}" method="post" id="genre_checkbox">
+
+                {% for genre in genres %}
+                <label><input type="checkbox" name="genre" value="{{ genre.genre_name }}" {% if(genre.genre_name in checked_genres) %} checked {% endif %}> {{ genre.genre_name }}</label><br>
+                {% endfor %}
+                <button type="button" id="uncheck-all">Uncheck All</button>
+            </form>
+        </div>
+
+        <div class="games">
+            {% include 'assets/search_bar.html' %}
+            {% include 'browse/game_browser.html' %}
+        </div>
+
+
+<script>
+
+    $("#uncheck-all").click(function() {
+        $("#genre_checkbox input[type='checkbox']").prop("checked", false);
+        const currentUrl = window.location.href.split('?')[0];
+        window.location.href = currentUrl;
+    });
+
+</script>
+
+{% endblock %}

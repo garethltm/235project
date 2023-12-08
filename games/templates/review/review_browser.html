@@ -1,0 +1,44 @@
+
+{% if reviews != [] %}
+    <table>
+        <tr>
+            <th>User</th>
+            <th>Comment</th>
+            <th>Rating</th>
+        </tr>
+
+        {% for review in reviews %}
+        <tr>
+            <td>{{ review.user.username }}</td>
+            <td>{{ review.comment }}</td>
+            <td>
+                {% for i in range(review.rating) %}
+                    <span class="star">★</span>
+                {% endfor %}
+                ({{ review.rating }})
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="pagination">
+        <a href="{{ first_page }}" class="pagination-link">First</a>
+
+        {% if prev_page != None %}
+        <a href="{{ prev_page }}" class="pagination-link">Previous</a>
+        {% else %}
+        <a class="pagination-disabled">Previous</a>
+        {% endif %}
+
+        <span class="pagination-info">Page <span class=current-page">{{ page }}</span> of {{ total_page }}</span>
+
+        {% if next_page != None %}
+        <a href="{{ next_page }}" class="pagination-link" id="next">Next</a>
+        {% else %}
+        <a class="pagination-disabled" id="next">Next</a>
+        {% endif %}
+
+        <a href="{{ last_page }}" class="pagination-link" id="last">Last</a>
+    </div>
+{% else %}
+    <h2 class="browser-heading">NO REVIEWS FOUND!</h2>
+{% endif %}

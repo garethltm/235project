@@ -1,0 +1,11 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="confirmation-box">
+    <h1>{{ browse_h1 }}</h1>
+    <h2>{{ browse_h2 }}</h2>
+    <p>{{ browse_h3 }}</p>
+    <a href="{{ url_for('browse.browse_home') }}">
+            <button type="button">OK</button>
+    </a>
+</div>
+{% endblock %}

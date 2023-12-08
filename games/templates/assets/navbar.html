@@ -1,0 +1,62 @@
+<header class="top-nav">
+    <div class="top-bar">
+
+        <div class="left-nav-wrapper">
+            <div class="left-nav-row">
+                {% if url_for(request.endpoint) == '/' %}
+                    <a href="{{ url_for('home.home_home') }}" class="left-nav navigation-bar-elements focus">Home</a>
+                    <a href="{{ url_for('browse.browse_home') }}" class="left-nav navigation-bar-elements">All Games</a>
+                    <a href="{{ url_for('wishlist.view_wishlist') }}" class="left-nav navigation-bar-elements">Wishlist</a>
+                {% elif ('/browse' in url_for(request.endpoint) and '/details' not in url_for(request.endpoint)) %}
+                    <a href="{{ url_for('home.home_home') }}" class="left-nav navigation-bar-elements">Home</a>
+                    <a href="{{ url_for('browse.browse_home') }}" class="left-nav navigation-bar-elements focus">All Games</a>
+                    <a href="{{ url_for('wishlist.view_wishlist') }}" class="left-nav navigation-bar-elements">Wishlist</a>
+                {% elif ('/wishlist' in url_for(request.endpoint) and '/details' not in url_for(request.endpoint)) %}
+                    <a href="{{ url_for('home.home_home') }}" class="left-nav navigation-bar-elements">Home</a>
+                    <a href="{{ url_for('browse.browse_home') }}" class="left-nav navigation-bar-elements">All Games</a>
+                    <a href="{{ url_for('wishlist.view_wishlist') }}" class="left-nav navigation-bar-elements focus">Wishlist</a>
+                {% else %}
+                    <a href="{{ url_for('home.home_home') }}" class="left-nav navigation-bar-elements">Home</a>
+                    <a href="{{ url_for('browse.browse_home') }}" class="left-nav navigation-bar-elements">All Games</a>
+                    <a href="{{ url_for('wishlist.view_wishlist') }}" class="left-nav navigation-bar-elements">Wishlist</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="center-logo-wrapper">
+            <p class="logo-txt">CS235 Game Library</p>
+            <img class="logo-img" src="../../static/images/logo.png" alt="CS235 Game Library LOGO">
+            <!-- <a href="https://www.flaticon.com/free-icons/game-controller" title="game controller icons">Game controller icons created by Freepik - Flaticon</a> -->
+        </div>
+
+        {% if 'username' in session %}
+        <div class="language-wrapper">
+            <img src="../../static/images/user-solid.svg" alt="User: " class="globe-icon">
+            <p class="lang-selection"> Welcome, {{ session['username'] }}</p>
+        </div>
+        {% endif %}
+
+        <div class="right-nav-wrapper">
+            {% if 'username' in session %}
+                {% if '/profile' in url_for(request.endpoint) %}
+                    <a href="{{ url_for('profile.profile_detail') }}" class="navigation-bar-elements right-nav focus">Profile</a>
+                    <a href="{{ url_for('authentication.logout') }}" class="navigation-bar-elements right-nav">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('profile.profile_detail') }}" class="navigation-bar-elements right-nav">Profile</a>
+                    <a href="{{ url_for('authentication.logout') }}" class="navigation-bar-elements right-nav">Logout</a>
+                {% endif %}
+            {% else %}
+                {% if '/register' in url_for(request.endpoint) %}
+                    <a href="{{ url_for('authentication.login') }}" class="navigation-bar-elements right-nav">Login</a>
+                    <a href="{{ url_for('authentication.register') }}" class="navigation-bar-elements right-nav focus">Register</a>
+                {% elif '/login' in url_for(request.endpoint) %}
+                    <a href="{{ url_for('authentication.login') }}" class="navigation-bar-elements right-nav focus">Login</a>
+                    <a href="{{ url_for('authentication.register') }}" class="navigation-bar-elements right-nav">Register</a>
+                {% else %}
+                    <a href="{{ url_for('authentication.login') }}" class="navigation-bar-elements right-nav">Login</a>
+                    <a href="{{ url_for('authentication.register') }}" class="navigation-bar-elements right-nav">Register</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</header>

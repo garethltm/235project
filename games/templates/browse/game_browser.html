@@ -1,0 +1,40 @@
+
+{% if games != [] %}
+    <h2 class="browser-heading">Available Games</h2>
+    <table>
+        <tr>
+            <th>Game</th>
+            <th>Genre</th>
+            <th>Price</th>
+        </tr>
+
+        {% for game in games %}
+        <tr onclick="window.location.href='{{ url_for('browse.browse_detail')  }}?id={{ game.game_id }}';">
+            <td>{{ game.title }}</td>
+            <td>{% for genre in game.genres %} {{ genre.genre_name }} {% endfor %}</td>
+            <td>{{ game.price }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div class="pagination">
+        <a href="{{ first_page }}" class="pagination-link">First</a>
+
+        {% if prev_page != None %}
+        <a href="{{ prev_page }}" class="pagination-link">Previous</a>
+        {% else %}
+        <a class="pagination-disabled">Previous</a>
+        {% endif %}
+
+        <span class="pagination-info">Page <span class=current-page">{{ page }}</span> of {{ total_page }}</span>
+
+        {% if next_page != None %}
+        <a href="{{ next_page }}" class="pagination-link" id="next">Next</a>
+        {% else %}
+        <a class="pagination-disabled" id="next">Next</a>
+        {% endif %}
+
+        <a href="{{ last_page }}" class="pagination-link" id="last">Last</a>
+    </div>
+{% else %}
+    <h2 class="browser-heading">NO GAMES FOUND!</h2>
+{% endif %}

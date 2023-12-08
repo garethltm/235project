@@ -1,0 +1,126 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container-browse">
+<div class="cell">
+    <p class="title">{{ game.title }}</p>
+    <img src="{{ game.image_url }}" alt="game image">
+</div>
+<div class="cell2">
+    <p class="subheading publisher">PUBLISHER: </p>
+    <p class="context">{{ game.publisher.publisher_name }}</p> <br>
+    <p class="subheading">RELEASE DATE: </p>
+    <p class="context">{{ game.release_date }}</p> <br>
+    <p class="subheading">GENRE: </p>
+    <p class="context">{% for genre in game.genres %} {{ genre.genre_name }} {% endfor %}</p> <br>
+    <p class="subheading">PRICE: </p>
+    <p class="context">${{ game.price }}</p> <br>
+    <p class="subheading">AVERAGE RATING: </p>
+    <p class="context"> <span class="star">★</span> {{ average_rating }} </p> <br>
+    <p class="subheading">SUPPORTED PLATFORMS: </p>
+    {% if (game.isWindows) %}
+        <img src="../../static/images/windows.png" alt="windows icon" class="platform-icon">
+    {% endif %}
+    {% if (game.isMac) %}
+        <img src="../../static/images/mac.png" alt="mac icon" class="platform-icon">
+    {% endif %}
+    {% if (game.isLinux) %}
+        <img src="../../static/images/linux.png" alt="penguin icon" class="platform-icon">
+    {% endif %}
+{# <a href="https://www.flaticon.com/free-icons/windows" title="windows icons">Windows icons created by Pixel perfect - Flaticon</a>#}
+{# <a href="https://www.flaticon.com/free-icons/mac" title="mac icons">Mac icons created by Freepik - Flaticon</a>#}
+{# <a href="https://www.flaticon.com/free-icons/penguin" title="penguin icons">Penguin icons created by Freepik - Flaticon</a>#}
+</div>
+</div>
+{% if in_wishlist %}
+    <form id="wishlist-form-{{ game.game_id }}" action="{{ url_for('wishlist.remove_wishlist', game_id=game.game_id) }}" method="POST">
+        <input type="hidden" name="game_id" value="{{ game.game_id }}">
+        <button id="wishlist-btn-{{ game.game_id }}" class="wishlist-button remove-button" type="submit">Remove from Wishlist</button>
+    </form>
+{% else %}
+    <form id="wishlist-form-{{ game.game_id }}" action="{{ url_for('wishlist.add_to_wishlist') }}" method="post">
+        <input type="hidden" name="game_id" value="{{ game.game_id }}">
+        <button id="wishlist-btn-{{ game.game_id }}" class="wishlist-button add-button" type="submit">Add to Wishlist</button>
+    </form>
+{% endif %}
+
+
+<p class="subheading about-heading">ABOUT: </p>
+<p class="context">{{ game.description }}</p> <br>
+<p class="subheading about-heading">REVIEWS: </p>
+{% include 'review/review_browser.html' %}
+<div class="add-review">
+<h2>Write a Review</h2>
+<form action="{{ url_for('review.submit_review') }}" method="post">
+    <input type="hidden" name="game_id" value="{{ game.game_id }}">
+    <label for="rating">Rating:</label>
+    <select name="rating" id="rating">
+        <option value="5">5 (Excellent)</option>
+        <option value="4">4 (Good)</option>
+        <option value="3">3 (Average)</option>
+        <option value="2">2 (Fair)</option>
+        <option value="1">1 (Poor)</option>
+        <option value="0">0 (Very Poor)</option>
+    </select>
+    <br>
+    <label for="comment">Comment:</label>
+    <textarea name="comment" id="comment" rows="4" cols="50" required></textarea>
+    <br>
+    <button type="submit">Submit Review</button>
+</form>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="flash-messages">
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endwith %}
+</div>
+<script>
+    document.querySelectorAll('[id^="wishlist-form-"]').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var button = form.querySelector('button');
+            var game_id = form.elements['game_id'].value;  // Assuming 'game_id' is a form field
+
+            // Check if the user is logged in
+            if ('{{ 'username' in session }}' === 'False') {
+                // Redirect the user to the login page
+                window.location.href = '{{ url_for('authentication.login') }}';
+                return; // Prevent further execution of the code
+            }
+
+            // Track the current state of the button
+            var isAdding = button.classList.contains('add-button');
+
+            fetch(form.action, {
+                method: form.method,
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',  // This is to let Flask know this is an AJAX request
+                }
+            }).then(response => response.json())
+              .then(data => {
+                  // Update the button's state based on the response
+                  if (data.result == 'success') {
+                    if (isAdding) {
+                        // Change to "Remove from Wishlist" mode
+                        button.textContent = 'Remove from Wishlist';
+                        button.classList.remove('add-button');
+                        button.classList.add('remove-button');
+                    } else {
+                        // Change to "Add to Wishlist" mode
+                        button.textContent = 'Add to Wishlist';
+                        button.classList.remove('remove-button');
+                        button.classList.add('add-button');
+                    }
+                }
+              });
+        });
+    });
+</script>
+
+{% endblock %}

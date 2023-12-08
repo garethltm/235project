@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <div class="formWrapper">
+    <h1>{{ title }}</h1>
+        <form action="{{ handler_url }}" method="POST">
+            {{ form.csrf_token }}
+            <div class="formField">
+                {{ form.username.label }}
+                {{ form.username }}
+                {% if form.username.errors or usernameErrorMsg is not none %}
+                    <ul class="error">
+                        {% if usernameErrorMsg is not none %}
+                            <li>{{ usernameErrorMsg }}</li>
+                        {% endif %}
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="formField">
+                {{ form.password.label }}
+                {{ form.password }}
+                {% if form.password.errors or passwordErrorMsg is not none and (form.password.errors or passwordErrorMsg != null )  %}
+                    <ul class="error">
+                        {% if passwordErrorMsg is not none and passwordErrorMsg != null %}
+                            <li>{{ passwordErrorMsg }}</li>
+                        {% endif %}
+                        {% for error in form.password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            {{ form.submit }}
+        </form>
+    </div>
+
+{% endblock %}
